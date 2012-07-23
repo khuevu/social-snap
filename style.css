@@ -1,0 +1,39 @@
+.screen {
+    z-index:50000;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    /*width: 100%;*/
+    /*height: 100%;*/
+    margin: 0px;
+    /*background: rgba(0, 0, 0, 0.5);*/
+    cursor: crosshair;
+}
+
+.popUp {
+    z-index: 50001;
+    position: absolute;
+    background: white;
+    border: 1px solid black;
+    border-radius: 3px;
+    padding-top: 10px;
+}
+
+#imageHolder {
+    margin-left: auto;
+    margin-top: 10px;
+    margin-right: auto;
+    margin-bottom: auto;
+    overflow: scroll;
+    position: absolute;
+    display: table-cell; 
+    vertical-align: middle;
+}
+
+#toolbox {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: auto;
+    border: 1px solid;
+}
