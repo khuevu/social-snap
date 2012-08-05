@@ -25,8 +25,8 @@
     margin-right: auto;
     margin-bottom: auto;
     overflow: scroll;
-    position: absolute;
-    display: table-cell; 
+    /*position: absolute;*/
+    /*display: table-cell; */
     vertical-align: middle;
 }
 
@@ -36,4 +36,16 @@
     margin-top: 10px;
     margin-bottom: auto;
     border: 1px solid;
+}
+
+#facebook-login {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: auto;
+    border: 1px solid;
+}
+
+.hidden {
+    display: none;
 }

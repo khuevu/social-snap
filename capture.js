@@ -5,6 +5,7 @@ function getViewableHeight() {
 function getViewableWidth() {
     return Math.max(window.innerWidth, document.body.parentNode.scrollWidth, document.body.parentNode.clientWidth);
 }
+
 //create canvas to draw selection area
 var captureCanvas = document.createElement('canvas');
 captureCanvas.className = 'screen';
@@ -30,18 +31,43 @@ var imageDisplay = document.createElement('canvas');
 imageDisplay.id = 'imageDisplay';
 imageHolder.appendChild(imageDisplay);
 //share toolbox
-var toolbox = document.createElement('div');
+var toolbox = document.createElement('span');
 toolbox.id = 'toolbox';
 toolbox.style.height = '150px';
 toolbox.style.width = '500px';
 capturePopup.appendChild(toolbox);
-
-debugger;
+var shareFbButton = document.createElement('button');
+shareFbButton.id = 'share-facebook';
+shareFbButton.innerText = 'Facebook';
+toolbox.appendChild(shareFbButton);
+var sharePinButton = document.createElement('button');
+sharePinButton.id = 'share-pinterest';
+sharePinButton.innerText = 'Pinterest';
+toolbox.appendChild(sharePinButton);
+//bind click handler
+shareFbButton.addEventListener('click', shareFacebook);
+//fbLogin form
+var fbLogin = document.createElement('div');
+fbLogin.id = 'facebook-login';
+fbLogin.className = 'hidden';
+var fbForm = document.createElement('div');
+var fbUsername = document.createElement('input'); 
+fbUsername.id = 'username';
+var fbPassword = document.createElement('input');
+fbPassword.id = 'password';
+var fbRemember = document.createElement('input');
+fbRemember.id = 'remember';
+var fbSubmit = document.createElement('button');
+fbForm.appendChild(fbUsername);
+fbForm.appendChild(fbPassword);
+fbForm.appendChild(fbRemember);
+fbForm.appendChild(fbSubmit);
+fbLogin.appendChild(fbForm);
+capturePopup.appendChild(fbLogin);
 
 document.body.appendChild(captureCanvas);
 document.body.appendChild(capturePopup);
 //document.body.appendChild(imageTest);
-
 function CaptureView() {
     this.popup = null;
     this.imageCanvas = null;
@@ -158,6 +184,7 @@ captureCanvas.onmousemove = function() {
     controller.updateSelection({x: event.offsetX, y: event.offsetY});
 }
 document.onkeydown = function() {
+    console.log('event ' + event);
     var keyId = event.keyCode; 
     console.log('Key ID ' + keyId);
     switch(keyId) {
@@ -167,4 +194,50 @@ document.onkeydown = function() {
             break;
     }
 }
+
+// -------------------- FACEBOOK
+// ------------------------------------------------//
+function shareFacebook() {
+    debugger;
+    //request to authorization page
+    var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&response_type=token';
+    //send request to background  
+    var popupWindow = null;
+    chrome.extension.sendRequest({action: 'activate'}, function(response) {
+            //close the window.  
+            //popupWindow.close();
+            fbAccessToken = response.accessToken; 
+            console.log('Access Token ' + fbAccessToken);
+            console.log('Expire IN ' + response.expireIn);
+        });
+    
+    //setTimeout(200, function() {console.log('time out');})
+    popupWindow = window.open(authorizeUrl,"Facebook Permission","left="+((window.screenX||window.screenLeft)+10)+",top="+((window.screenY||window.screenTop)+10)+",height=420px,width=550px,resizable=1,alwaysRaised=1");  
+    //popupWindow = window.open(authorizeUrl);
+    console.log(popupWindow);
+     
+  /*  var xhr = new XMLHttpRequest();
+    xhr.open("GET", authorizeUrl, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            //if success post picture 
+            console.log(xhr);
+            var response = xhr.responseText;
+            //if it is permission page
+            if (response.match('https:\/\/www.facebook.com\/dialog\/permissions.request/m')) {
+                //post authorize permission 
+                 
+            } else if (response.match('Facebook Login')) {
+                //post 
+            } 
+            //if login page
+        }
+    }
+    xhr.send(null);
+    fbLogin.className = '';
+    */
+    //submit authentication to facebook      
+    
+}
+
 

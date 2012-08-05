@@ -11,6 +11,10 @@
     },
   "permissions": [
       "tabs",
-      "http://*/*"
+      "http://*/*",
+      "https://*/*"
+    ],
+    "web_accessible_resources": [
+        "facebook.js", "channel.html"
     ]
 }
