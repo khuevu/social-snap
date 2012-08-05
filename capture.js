@@ -6,6 +6,7 @@ function getViewableWidth() {
     return Math.max(window.innerWidth, document.body.parentNode.scrollWidth, document.body.parentNode.clientWidth);
 }
 
+//initialize currentTab Id: 
 //create canvas to draw selection area
 var captureCanvas = document.createElement('canvas');
 captureCanvas.className = 'screen';
@@ -67,7 +68,8 @@ capturePopup.appendChild(fbLogin);
 
 document.body.appendChild(captureCanvas);
 document.body.appendChild(capturePopup);
-//document.body.appendChild(imageTest);
+
+
 function CaptureView() {
     this.popup = null;
     this.imageCanvas = null;
@@ -194,50 +196,76 @@ document.onkeydown = function() {
             break;
     }
 }
-
+//
+//simulate FireFox sendAsBinary for Chrome
+if (XMLHttpRequest.prototype.sendAsBinary === undefined) {
+    XMLHttpRequest.prototype.sendAsBinary = function(string) {
+        var bytes = Array.prototype.map.call(string, function(c) {
+                return c.charCodeAt(0) & 0xff; 
+            }); 
+        this.send(new Uint8Array(bytes).buffer);
+    }
+}   
 // -------------------- FACEBOOK
 // ------------------------------------------------//
 function shareFacebook() {
     debugger;
     //request to authorization page
-    var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&response_type=token';
+    var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&scope=publish_stream&response_type=token';
+    //chrome.extension.onRequest.addListener
     //send request to background  
     var popupWindow = null;
-    chrome.extension.sendRequest({action: 'activate'}, function(response) {
+    chrome.extension.sendRequest({'action': 'activate'}, function(response) {
             //close the window.  
             //popupWindow.close();
             fbAccessToken = response.accessToken; 
             console.log('Access Token ' + fbAccessToken);
             console.log('Expire IN ' + response.expireIn);
+            //TODO: save accessToken to cookie
+            console.log(captureView.imageCanvas);
+            var imageData = captureView.imageCanvas.toDataURL();
+            
+            var caption = 'Temp Caption';
+            uploadFacebookPhoto(imageData, caption, fbAccessToken);
         });
     
     //setTimeout(200, function() {console.log('time out');})
     popupWindow = window.open(authorizeUrl,"Facebook Permission","left="+((window.screenX||window.screenLeft)+10)+",top="+((window.screenY||window.screenTop)+10)+",height=420px,width=550px,resizable=1,alwaysRaised=1");  
     //popupWindow = window.open(authorizeUrl);
     console.log(popupWindow);
-     
-  /*  var xhr = new XMLHttpRequest();
-    xhr.open("GET", authorizeUrl, true);
+}
+
+function prepareMIMEMessage(binData, message, accessToken) {
+    var boundary = '-------';
+    var newLine = '\r\n';
+    var blankLine = '\r\n\r\n';
+    //form data: message
+    var data = newLine + boundary + newLine + "Content-Disposition: form-data; name=\"message\"" + blankLine + message + newLine;
+    //access token
+    data = data + boundary + newLine  + "Content-Disposition: form-data; name=\"acess_token\"" + blankLine + accessToken + newLine;
+    //binaryData
+    data = data + boundary + newLine + "Content-Disposition: form-data; filename=\"capture.png\"" + newLine + "Content-Type: image/png" + blankLine + binData + newLine + boundary + '--' + newLine;
+    return data;
+    
+}
+
+
+function uploadFacebookPhoto(imageData, caption, accessToken) {
+    
+    var photoUrl = 'https://graph.facebook.com/me/photos';
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", photoUrl, true);
+    xhr.setRequestHeader("Content-type", "multipart/form-data; boundary=-----")
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
-            //if success post picture 
-            console.log(xhr);
-            var response = xhr.responseText;
-            //if it is permission page
-            if (response.match('https:\/\/www.facebook.com\/dialog\/permissions.request/m')) {
-                //post authorize permission 
-                 
-            } else if (response.match('Facebook Login')) {
-                //post 
-            } 
-            //if login page
-        }
-    }
-    xhr.send(null);
-    fbLogin.className = '';
-    */
-    //submit authentication to facebook      
-    
+            console.log('successfully post the message'); 
+        } 
+    };
+    //TODO: form post image data
+    var data = prepareMIMEMessage(imageData, caption, accessToken);
+    console.log(data);
+    xhr.sendAsBinary(data);
+
 }
 
 

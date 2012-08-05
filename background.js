@@ -53,27 +53,47 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
                 }
             }); 
          */   
-        setTimeout(3000, function() {console.log('delay to wait for the login popup to be created');});
-        chrome.windows.getAll({populate: true}, function (windows) {
-                for (var i = 0; i < windows.length; i++) {
-                    var w = windows[i]; 
-                    console.log(w);
-                    if (w.type === 'popup') {
-                        console.log(w.tabs[0].url) ;  
-                        //if it is facebook popup
-                        var url = w.tabs[0].url;
-                        if (url.indexOf('https://www.facebook.com/connect/login_success.html') != -1) {
-                            var accessToken = url.match('access_token=(.*?)&')[1];
-                            var expireIn = url.match('expires_in=([0-9]*)')[1];
-                            console.log('accessToken ' + accessToken);
-                            chrome.windows.remove(w.id, function() {console.log('closed the logged in popup');});
-                            sendResponse({'accessToken': accessToken, 'expireIn': expireIn});
-                        }
-                    }
-                } 
-            });
-        
+        getSuccessLoginUrl(sendResponse);
     }
 });
+
+
+function getSuccessLoginUrl(sendResponse) {
+     debugger; 
+     chrome.windows.getAll({populate: true}, function (windows) {
+            var successUrl = null;
+            var loginWindowId = null;
+            for (var i = 0; i < windows.length; i++) {
+                var w = windows[i]; 
+                if (w.type === 'popup') {
+                    console.log(w.tabs[0].url) ;  
+                    //if it is facebook popup
+                    var url = w.tabs[0].url;
+                    if (url.indexOf('https://www.facebook.com/connect/login_success.html') != -1) {
+                        successUrl = url; 
+                        loginWindowId = w.id;
+                        break;
+                    }
+                }
+            } 
+            console.log(loginWindowId);
+            if (successUrl != null) {
+                console.log(successUrl);
+                var accessToken = successUrl.match('access_token=(.*?)&')[1];
+                var expireIn = successUrl.match('expires_in=([0-9]*)')[1];
+                //chrome.windows.remove(w.id, function() {console.log('closed the logged in popup');});
+                //sendResponse({'accessToken': accessToken, 'expireIn': expireIn});
+                var authorizationData = {'accessToken': accessToken, 'expireIn': expireIn};
+                console.log(authorizationData);
+                sendResponse(authorizationData);
+                //return authorizationData;
+                chrome.windows.remove(loginWindowId, function() {console.log('closed the logged in popup');});
+            }
+            else {
+                getSuccessLoginUrl(); 
+            }
+
+        });
+}
 
 
