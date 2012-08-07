@@ -19,12 +19,12 @@ capturePopup.className = 'popUp';
 capturePopup.style.display = 'none';
 capturePopup.id = 'captureView';
 capturePopup.style.width = '600px';
-capturePopup.style.height = '700px';
+capturePopup.style.height = '680px';
 //image holder
 var imageHolder = document.createElement('div');
 imageHolder.id = 'imageHolder';
 imageHolder.style.width = '500px';
-imageHolder.style.height = '500px';
+imageHolder.style.height = '480px';
 imageHolder.align = 'center';
 capturePopup.appendChild(imageHolder);
 //canvas to display image
@@ -32,40 +32,32 @@ var imageDisplay = document.createElement('canvas');
 imageDisplay.id = 'imageDisplay';
 imageHolder.appendChild(imageDisplay);
 //share toolbox
-var toolbox = document.createElement('span');
+var toolbox = document.createElement('div');
 toolbox.id = 'toolbox';
 toolbox.style.height = '150px';
 toolbox.style.width = '500px';
 capturePopup.appendChild(toolbox);
+//caption input box
+var captionContainer = document.createElement('div');
+captionContainer.style.width= '450px';
+var captionInput = document.createElement('textarea');
+captionInput.id = 'caption';
+captionInput.placeholder = 'Your caption message...'
+var buttonContainer = document.createElement('div');
+buttonContainer.style.width = '450px';
 var shareFbButton = document.createElement('button');
 shareFbButton.id = 'share-facebook';
-shareFbButton.innerText = 'Facebook';
-toolbox.appendChild(shareFbButton);
-var sharePinButton = document.createElement('button');
-sharePinButton.id = 'share-pinterest';
-sharePinButton.innerText = 'Pinterest';
-toolbox.appendChild(sharePinButton);
+shareFbButton.innerText = 'Upload to Facebook';
+
+//toolbox.appendChild(captionInput);
+captionContainer.appendChild(captionInput);
+toolbox.appendChild(captionContainer);
+//toolbox.appendChild(document.createElement('br'));
+buttonContainer.appendChild(shareFbButton);
+toolbox.appendChild(buttonContainer);
 //bind click handler
 shareFbButton.addEventListener('click', shareFacebook);
 //fbLogin form
-var fbLogin = document.createElement('div');
-fbLogin.id = 'facebook-login';
-fbLogin.className = 'hidden';
-var fbForm = document.createElement('div');
-var fbUsername = document.createElement('input'); 
-fbUsername.id = 'username';
-var fbPassword = document.createElement('input');
-fbPassword.id = 'password';
-var fbRemember = document.createElement('input');
-fbRemember.id = 'remember';
-var fbSubmit = document.createElement('button');
-fbForm.appendChild(fbUsername);
-fbForm.appendChild(fbPassword);
-fbForm.appendChild(fbRemember);
-fbForm.appendChild(fbSubmit);
-fbLogin.appendChild(fbForm);
-capturePopup.appendChild(fbLogin);
-
 document.body.appendChild(captureCanvas);
 document.body.appendChild(capturePopup);
 
@@ -141,7 +133,7 @@ function CaptureCanvasController() {
     this.initialize = function() {
         this.canvas = document.getElementById('captureCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.ctx.strokeStyle = 'yellow';
+        this.ctx.strokeStyle = 'black';
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         //disable mouse scrolling
@@ -149,7 +141,6 @@ function CaptureCanvasController() {
     }
 
     this.captureSelection = function() {
-        //TODO: calculate offest from window view
         //use window.scrollX, window.scrollY 
         var x = this.startPoint.x - window.scrollX;
         var y = this.startPoint.y - window.scrollY;

@@ -14,7 +14,8 @@
     z-index: 50001;
     position: absolute;
     background: white;
-    border: 1px solid black;
+    border: 10px solid rgba(0, 0, 0, 0.60);
+    
     border-radius: 3px;
     padding-top: 10px;
 }
@@ -25,9 +26,24 @@
     margin-right: auto;
     margin-bottom: auto;
     overflow: scroll;
-    /*position: absolute;*/
-    /*display: table-cell; */
     vertical-align: middle;
+    /*border: 1px solid grey;*/
+    /*border-radius: 2px;*/
+}
+
+#imageHolder::-webkit-scrollbar {
+    background-color: transparent;
+    width: 6px;
+}
+
+#imageHolder:hover::-webkit-scrollbar-thumb {
+    opacity: 1;
+}
+
+#imageHolder::-webkit-scrollbar-thumb {
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.10);
+    border-radius: 3px;
 }
 
 #toolbox {
@@ -35,8 +51,23 @@
     margin-right: auto;
     margin-top: 10px;
     margin-bottom: auto;
-    border: 1px solid;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding-top: 15px;
 }
+
+#toolbox div {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#toolbox textarea {
+    font-family: Arial, Sans-Serif;
+    width: 98%;
+    padding: 4px;
+    border: solid 1px;
+}
+
 
 #facebook-login {
     margin-left: auto;
