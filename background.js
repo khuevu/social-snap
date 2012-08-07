@@ -19,6 +19,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     //var width = endPoint.x - startPoint.x;
     //var height = endPoint.y - startPoint.y;
     //capture whole window of selected tab
+    console.log(sendResponse);
     if (request.action === 'capture') {
         chrome.tabs.captureVisibleTab(null, function(imageUrl) {
                 sendResponse({image: imageUrl}); 
@@ -60,8 +61,8 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 });
 
 
-function getSuccessLoginUrl(sendResponse) {
-     debugger; 
+function getSuccessLoginUrl(sendBackData) {
+     console.log(sendBackData);
      chrome.windows.getAll({populate: true}, function (windows) {
             var successUrl = null;
             var loginWindowId = null;
@@ -87,7 +88,7 @@ function getSuccessLoginUrl(sendResponse) {
                 //sendResponse({'accessToken': accessToken, 'expireIn': expireIn});
                 var authorizationData = {'accessToken': accessToken, 'expireIn': expireIn};
                 console.log(authorizationData);
-                sendResponse(authorizationData);
+                sendBackData(authorizationData);
                 //return authorizationData;
                 chrome.windows.remove(loginWindowId, function() {console.log('closed the logged in popup');});
             }
