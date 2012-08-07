@@ -223,10 +223,18 @@ function shareFacebook() {
             console.log('Expire IN ' + response.expireIn);
             //TODO: save accessToken to cookie
             console.log(captureView.imageCanvas);
-            var imageData = captureView.imageCanvas.toDataURL();
-            
-            var caption = 'Temp Caption';
-            uploadFacebookPhoto(imageData, caption, fbAccessToken);
+            //var imageData = captureView.imageCanvas.toDataURL();
+            captureView.imageCanvas.toBlob(function(blob) {
+                    var fileReader = new FileReader(); 
+                    fileReader.onloadend = function(evt) {
+                        console.log('function happen here');
+                        if (event.target.readyState == FileReader.DONE) {
+                            uploadFacebookPhoto(evt.target.result, 'TempCaption', fbAccessToken); 
+                        
+                        } 
+                    }
+                    fileReader.readAsBinaryString(blob); 
+                }, "image/png"); 
         });
     
     //setTimeout(200, function() {console.log('time out');})
@@ -239,12 +247,12 @@ function prepareMIMEMessage(binData, message, accessToken) {
     var boundary = '-------';
     var newLine = '\r\n';
     var blankLine = '\r\n\r\n';
-    //form data: message
-    var data = newLine + boundary + newLine + "Content-Disposition: form-data; name=\"message\"" + blankLine + message + newLine;
-    //access token
-    data = data + boundary + newLine  + "Content-Disposition: form-data; name=\"acess_token\"" + blankLine + accessToken + newLine;
     //binaryData
-    data = data + boundary + newLine + "Content-Disposition: form-data; filename=\"capture.png\"" + newLine + "Content-Type: image/png" + blankLine + binData + newLine + boundary + '--' + newLine;
+    var data = newLine + boundary + newLine + "Content-Disposition: form-data; name=\"source\"; filename=\"capture.png\"" + newLine + "Content-Type: image/png" + blankLine + binData;
+    //form data: message
+    data = data + newLine + boundary + newLine + "Content-Disposition: form-data; name=\"message\"" + blankLine + message ;
+    //end
+    data = data + newLine + boundary + '--' + newLine;
     return data;
     
 }
@@ -252,7 +260,7 @@ function prepareMIMEMessage(binData, message, accessToken) {
 
 function uploadFacebookPhoto(imageData, caption, accessToken) {
     
-    var photoUrl = 'https://graph.facebook.com/me/photos';
+    var photoUrl = 'https://graph.facebook.com/651244951/photos?access_token=' + accessToken;
     var xhr = new XMLHttpRequest();
     xhr.open("POST", photoUrl, true);
     xhr.setRequestHeader("Content-type", "multipart/form-data; boundary=-----")

@@ -6,7 +6,9 @@ function captureSelection(start, end, imageUrl) {
 chrome.browserAction.onClicked.addListener(function(tab) {
         chrome.tabs.executeScript(tab.id, {file: "capture.js"});
         chrome.tabs.insertCSS(tab.id, {file: "style.css"});
-        //chrome.tabs.executeScript(tab.id, {file: "facebook.js"});
+        if (HTMLCanvasElement && !HTMLCanvasElement.prototype.toBlob) {
+            chrome.tabs.executeScript(null, {file: "canvas-toBlob.js"}); 
+        }
     });
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
