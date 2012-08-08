@@ -12,7 +12,8 @@
   "permissions": [
       "tabs",
       "http://*/*",
-      "https://*/*"
+      "https://*/*",
+      "storage"
     ],
     "web_accessible_resources": [
         "facebook.js", "channel.html"
