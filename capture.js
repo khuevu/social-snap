@@ -116,7 +116,7 @@ function CaptureCanvasController() {
 		//draw the new selection
 		var width = currentPoint.x - this.startPoint.x;
 		var height = currentPoint.y - this.startPoint.y;
-		//console.log("start: " + this.startPoint.x + " - " + this.startPoint.y + " width, height: " + width + " - " + height);
+		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		//highlight selection
 		this.ctx.clearRect(this.startPoint.x, this.startPoint.y, width, height);
@@ -144,11 +144,19 @@ function CaptureCanvasController() {
 		var y = this.startPoint.y - window.scrollY;
 		var width = this.endPoint.x - this.startPoint.x;
 		var height = this.endPoint.y - this.startPoint.y;
-		//send start and end points coo)dinate to background process
+        var tempBlackOut = (function(context, canvas) {
+            return function() {
+                context.clearRect(0, 0, canvas.width, canvas.height); 
+                context.fillStyle = 'rgba(0, 0, 0, 1)';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        })(this.ctx, this.canvas);
 		chrome.extension.sendRequest({
 			action: 'capture'
 		},
 		function(response) {
+            //black the background and popup view window
+            tempBlackOut();
 			captureView.setImage(response.image, x, y, width, height);
 			captureView.show();
 		});
@@ -214,26 +222,32 @@ if (XMLHttpRequest.prototype.sendAsBinary === undefined) {
 function shareFacebook() {
 	debugger;
 	//request to authorization page
-	var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&scope=publish_stream&response_type=token';
+	var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&scope=publish_stream&response_type=token&display=popup';
 	//send request to background  
 	var popupWindow = null;
-    chrome.storage.local.get('accessToken', function(data){
+    chrome.storage.local.get(['accessToken', 'expireTime'], function(data){
             var accessToken = data.accessToken;         
-            console.log(accessToken);
-            if (accessToken) {
+            var expireTime = data.expireTime;
+            var currentTime = (new Date()).getTime();
+            if (accessToken && (currentTime < expireTime)) {
                 getDataAndUploadToFacebook(accessToken);  
             } else {
                  chrome.extension.sendRequest({
                     'action': 'activate'
                 },
                 function(response) {
-                    //close the window.  
-                    //popupWindow.close();
-                    chrome.storage.local.set({'accessToken': response.accessToken});
+                    var today = new Date();
+                    //calculate the future expireTime in milli second from
+                    //epcho time 
+                    var expireTime = today.getTime() + parseInt(response.expireIn) * 1000;
+                    console.log(expireTime);
+                    chrome.storage.local.clear(function() {
+                        chrome.storage.local.set({'accessToken': response.accessToken, 'expireTime': expireTime});
+                        });
                     getDataAndUploadToFacebook(response.accessToken);
                 });
-                //setTimeout(200, function() {console.log('time out');})
-                popupWindow = window.open(authorizeUrl, "Facebook Permission", "left=" + ((window.screenX || window.screenLeft) + 10) + ",top=" + ((window.screenY || window.screenTop) + 10) + ",height=420px,width=550px,resizable=1,alwaysRaised=1");
+
+                popupWindow = window.open(authorizeUrl, "Facebook Permission", "left=" + ((window.screenX || window.screenLeft) + 10) + ",top=" + ((window.screenY || window.screenTop) + 10) + ",height=270px,width=500px,resizable=0,alwaysRaised=1");
             } 
         });
 	
@@ -253,7 +267,7 @@ function prepareMIMEMessage(binData, message, accessToken) {
 
 }
 function getDataAndUploadToFacebook(fbAccessToken) {
-    var caption = captionInput.innerText;
+    var caption = captionInput.value;
 	captureView.imageCanvas.toBlob(function(blob) {
 		var fileReader = new FileReader();
 		fileReader.onloadend = function(evt) {
@@ -275,6 +289,7 @@ function uploadFacebookPhoto(imageData, caption, accessToken) {
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == 4 && xhr.status == 200) {
 			console.log('successfully post the message');
+            controller.exit();
 		}
 	};
 	var data = prepareMIMEMessage(imageData, caption, accessToken);

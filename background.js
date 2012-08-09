@@ -62,14 +62,12 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 
 
 function getSuccessLoginUrl(sendBackData) {
-     console.log(sendBackData);
      chrome.windows.getAll({populate: true}, function (windows) {
             var successUrl = null;
             var loginWindowId = null;
             for (var i = 0; i < windows.length; i++) {
                 var w = windows[i]; 
                 if (w.type === 'popup') {
-                    console.log(w.tabs[0].url) ;  
                     //if it is facebook popup
                     var url = w.tabs[0].url;
                     if (url.indexOf('https://www.facebook.com/connect/login_success.html') != -1) {
@@ -87,13 +85,12 @@ function getSuccessLoginUrl(sendBackData) {
                 //chrome.windows.remove(w.id, function() {console.log('closed the logged in popup');});
                 //sendResponse({'accessToken': accessToken, 'expireIn': expireIn});
                 var authorizationData = {'accessToken': accessToken, 'expireIn': expireIn};
-                console.log(authorizationData);
                 sendBackData(authorizationData);
                 //return authorizationData;
                 chrome.windows.remove(loginWindowId, function() {console.log('closed the logged in popup');});
             }
             else {
-                getSuccessLoginUrl(); 
+                getSuccessLoginUrl(sendBackData); 
             }
 
         });
