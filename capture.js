@@ -140,8 +140,12 @@ function CaptureCanvasController() {
 
 	this.captureSelection = function() {
 		//use window.scrollX, window.scrollY 
-		var x = this.startPoint.x - window.scrollX;
-		var y = this.startPoint.y - window.scrollY;
+        var x = this.startPoint.captureX;
+        var y = this.startPoint.captureY;
+        //handle zoom 
+        var zoomRatio = document.documentElement.clientWidth / document.width;
+        x = x / zoomRatio;
+        y = y / zoomRatio;
 		var width = this.endPoint.x - this.startPoint.x;
 		var height = this.endPoint.y - this.startPoint.y;
         var tempBlackOut = (function(context, canvas) {
@@ -177,27 +181,32 @@ var controller = new CaptureCanvasController();
 var captureView = new CaptureView();
 //bind event handler 
 captureCanvas.onmousedown = function() {
+    console.log(event.clientX + " - " + event.clientY);
 	controller.startSelection({
 		x: event.offsetX,
-		y: event.offsetY
+		y: event.offsetY, 
+        captureX: event.clientX,
+        captureY: event.clientY
 	});
 }
 captureCanvas.onmouseup = function() {
 	controller.endSelection({
 		x: event.offsetX,
-		y: event.offsetY
+		y: event.offsetY,
+        captureX: event.clientX,
+        captureY: event.clientY
 	});
 }
 captureCanvas.onmousemove = function() {
 	controller.updateSelection({
 		x: event.offsetX,
-		y: event.offsetY
+		y: event.offsetY,
+        captureX: event.clientX,
+        captureY: event.clientY
 	});
 }
 document.onkeydown = function() {
-	console.log('event ' + event);
 	var keyId = event.keyCode;
-	console.log('Key ID ' + keyId);
 	switch (keyId) {
 	case 13:
 		controller.captureSelection();
@@ -220,7 +229,6 @@ if (XMLHttpRequest.prototype.sendAsBinary === undefined) {
 // -------------------- FACEBOOK
 // ------------------------------------------------//
 function shareFacebook() {
-	debugger;
 	//request to authorization page
 	var authorizeUrl = 'https://www.facebook.com/dialog/oauth?client_id=425303964177321&redirect_uri=https://www.facebook.com/connect/login_success.html&scope=publish_stream&response_type=token&display=popup';
 	//send request to background  
