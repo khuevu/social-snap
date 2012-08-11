@@ -2,7 +2,7 @@
   "name": "Social Snap",
     "version": "1.0",
   "manifest_version": 2,
-    "description": "The first extension that I made.",
+    "description": "Social Snap extension enables you to take worthy shoot on your screen and share it via social networks. Only Facebook supported in this version",
   "browser_action": {
       "default_icon": "icon.png"
     },
@@ -14,8 +14,5 @@
       "http://*/*",
       "https://*/*",
       "storage"
-    ],
-    "web_accessible_resources": [
-        "facebook.js", "channel.html"
     ]
 }
