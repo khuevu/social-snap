@@ -20,6 +20,7 @@ capturePopup.style.display = 'none';
 capturePopup.id = 'captureView';
 capturePopup.style.width = '600px';
 capturePopup.style.height = '680px';
+
 //image holder
 var imageHolder = document.createElement('div');
 imageHolder.id = 'imageHolder';
@@ -37,6 +38,18 @@ toolbox.id = 'toolbox';
 toolbox.style.height = '150px';
 toolbox.style.width = '500px';
 capturePopup.appendChild(toolbox);
+
+//loader 
+var loaderBox = document.createElement('div');
+loaderBox.id = 'loader';
+loaderBox.style.height = '150px';
+loaderBox.style.width = '500px';
+loaderBox.style.display = 'none';
+var loaderNote = document.createElement('div');
+loaderNote.innerText = 'Uploading image, please wait...';
+loaderNote.style.width = '450px';
+loaderBox.appendChild(loaderNote);
+capturePopup.appendChild(loaderBox);
 //caption input box
 var captionContainer = document.createElement('div');
 captionContainer.style.width = '450px';
@@ -82,6 +95,10 @@ function CaptureView() {
 		}
 		imageObj.src = imageUrl;
 	}
+    this.showLoadingStatus = function() {
+        this.popup.querySelector("#toolbox").style.display = 'none'; 
+        this.popup.querySelector("#loader").style.display = 'block'
+    }
 	this.initialize = function() {
 		this.popup = document.getElementById('captureView');
 		//set top and left position
@@ -275,6 +292,7 @@ function prepareMIMEMessage(binData, message, accessToken) {
 
 }
 function getDataAndUploadToFacebook(fbAccessToken) {
+    captureView.showLoadingStatus(); 
     var caption = captionInput.value;
 	captureView.imageCanvas.toBlob(function(blob) {
 		var fileReader = new FileReader();
