@@ -1,82 +1,89 @@
 /* Utils function */
 function getViewableHeight() {
-	return Math.max(window.innerHeight, document.body.parentNode.scrollHeight, document.body.parentNode.clientHeight);
+    //note: if use document.body.parent.clientHeight, canvas draw won't be
+    //visible due to too large height
+    return Math.max(window.innerHeight, window.screen.height);
+    //return Math.max(window.innerHeight, document.body.parentNode.scrollHeight, document.body.parentNode.clientHeight);
 }
 function getViewableWidth() {
-	return Math.max(window.innerWidth, document.body.parentNode.scrollWidth, document.body.parentNode.clientWidth);
+    return Math.max(window.innerWidth,window.screen.width);
+    //return Math.max(window.innerWidth, document.body.parentNode.scrollWidth, document.body.parentNode.clientWidth);
 }
 
-//initialize currentTab Id: 
 //create canvas to draw selection area
-var captureCanvas = document.createElement('canvas');
-captureCanvas.className = 'screen';
-captureCanvas.id = 'captureCanvas';
-captureCanvas.height = getViewableHeight();
-captureCanvas.width = getViewableWidth();
-//popup window
-var capturePopup = document.createElement('div');
-capturePopup.className = 'popUp';
-capturePopup.style.display = 'none';
-capturePopup.id = 'captureView';
-capturePopup.style.width = '600px';
-capturePopup.style.height = '680px';
+function insertVisualElements() {
+    var captureCanvas = document.createElement('canvas');
+    captureCanvas.className = 'screen';
+    captureCanvas.id = 'captureCanvas';
+    captureCanvas.height = getViewableHeight();
+    captureCanvas.width = getViewableWidth();
+    //popup window
+    var capturePopup = document.createElement('div');
+    capturePopup.className = 'popUp';
+    capturePopup.style.display = 'none';
+    capturePopup.id = 'captureView';
+    capturePopup.style.width = '600px';
+    capturePopup.style.height = '680px';
 
-//image holder
-var imageHolder = document.createElement('div');
-imageHolder.id = 'imageHolder';
-imageHolder.style.width = '500px';
-imageHolder.style.height = '480px';
-imageHolder.align = 'center';
-capturePopup.appendChild(imageHolder);
-//canvas to display image
-var imageDisplay = document.createElement('canvas');
-imageDisplay.id = 'imageDisplay';
-imageHolder.appendChild(imageDisplay);
-//share toolbox
-var toolbox = document.createElement('div');
-toolbox.id = 'toolbox';
-toolbox.style.height = '150px';
-toolbox.style.width = '500px';
-capturePopup.appendChild(toolbox);
+    //image holder
+    var imageHolder = document.createElement('div');
+    imageHolder.id = 'imageHolder';
+    imageHolder.style.width = '500px';
+    imageHolder.style.height = '480px';
+    imageHolder.align = 'center';
+    capturePopup.appendChild(imageHolder);
+    //canvas to display image
+    var imageDisplay = document.createElement('canvas');
+    imageDisplay.id = 'imageDisplay';
+    imageHolder.appendChild(imageDisplay);
+    //share toolbox
+    var toolbox = document.createElement('div');
+    toolbox.id = 'toolbox';
+    toolbox.style.height = '150px';
+    toolbox.style.width = '500px';
+    capturePopup.appendChild(toolbox);
 
-//loader 
-var loaderBox = document.createElement('div');
-loaderBox.id = 'loader';
-loaderBox.style.height = '150px';
-loaderBox.style.width = '500px';
-loaderBox.style.display = 'none';
-var loaderNote = document.createElement('div');
-loaderNote.innerText = 'Uploading image, please wait...';
-loaderNote.style.width = '450px';
-loaderBox.appendChild(loaderNote);
-capturePopup.appendChild(loaderBox);
-//caption input box
-var captionContainer = document.createElement('div');
-captionContainer.style.width = '450px';
-var captionInput = document.createElement('textarea');
-captionInput.id = 'caption';
-captionInput.placeholder = 'Your caption message...'
-var buttonContainer = document.createElement('div');
-buttonContainer.style.width = '450px';
-var shareFbButton = document.createElement('button');
-shareFbButton.id = 'share-facebook';
-shareFbButton.innerText = 'Upload to Facebook';
+    //loader 
+    var loaderBox = document.createElement('div');
+    loaderBox.id = 'loader';
+    loaderBox.style.height = '150px';
+    loaderBox.style.width = '500px';
+    loaderBox.style.display = 'none';
+    var loaderNote = document.createElement('div');
+    loaderNote.innerText = 'Uploading image, please wait...';
+    loaderNote.style.width = '450px';
+    loaderBox.appendChild(loaderNote);
+    capturePopup.appendChild(loaderBox);
+    //caption input box
+    var captionContainer = document.createElement('div');
+    captionContainer.style.width = '450px';
+    var captionInput = document.createElement('textarea');
+    captionInput.id = 'caption';
+    captionInput.placeholder = 'Your caption message...'
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.width = '450px';
+    var shareFbButton = document.createElement('button');
+    shareFbButton.id = 'share-facebook';
+    shareFbButton.innerText = 'Upload to Facebook';
 
-//toolbox.appendChild(captionInput);
-captionContainer.appendChild(captionInput);
-toolbox.appendChild(captionContainer);
-//toolbox.appendChild(document.createElement('br'));
-buttonContainer.appendChild(shareFbButton);
-toolbox.appendChild(buttonContainer);
-//bind click handler
-shareFbButton.addEventListener('click', shareFacebook);
-//fbLogin form
-document.body.appendChild(captureCanvas);
-document.body.appendChild(capturePopup);
+    //toolbox.appendChild(captionInput);
+    captionContainer.appendChild(captionInput);
+    toolbox.appendChild(captionContainer);
+    //toolbox.appendChild(document.createElement('br'));
+    buttonContainer.appendChild(shareFbButton);
+    toolbox.appendChild(buttonContainer);
+    //bind click handler
+    shareFbButton.addEventListener('click', shareFacebook);
+    //insert canvas at the beginning of the document
+    //document.body.insertBefore(captureCanvas, document.body.firstChild);
+    document.body.appendChild(captureCanvas);
+    document.body.appendChild(capturePopup);
+}
 
 function CaptureView() {
 	this.popup = null;
 	this.imageCanvas = null;
+    this.caption = null;
 	this.show = function() {
 		this.popup.style.display = 'block';
 	}
@@ -111,6 +118,7 @@ function CaptureView() {
 		this.popup.style.left = offsetLeft + 'px';
 		//set image display canvas
 		this.imageCanvas = this.popup.querySelector("#imageDisplay");
+        this.caption = this.popup.querySelector("#caption");
 	}
 	this.initialize();
 }
@@ -160,7 +168,8 @@ function CaptureCanvasController() {
         var x = this.startPoint.captureX;
         var y = this.startPoint.captureY;
         //handle zoom 
-        var zoomRatio = document.documentElement.clientWidth / document.width;
+        //var zoomRatio = document.documentElement.clientWidth / document.width;
+        var zoomRatio = getViewableWidth() / document.width;
         x = x / zoomRatio;
         y = y / zoomRatio;
 		var width = this.endPoint.x - this.startPoint.x;
@@ -193,56 +202,67 @@ function CaptureCanvasController() {
 	this.initialize();
 }
 
-//initialize the controller
-var controller = new CaptureCanvasController();
-var captureView = new CaptureView();
-//bind event handler 
-captureCanvas.onmousedown = function() {
-    console.log(event.clientX + " - " + event.clientY);
-	controller.startSelection({
-		x: event.offsetX,
-		y: event.offsetY, 
-        captureX: event.clientX,
-        captureY: event.clientY
-	});
+/*--------------------------------------------------------------*/
+//initialize visual element
+if (document.getElementById('captureCanvas') != null) {
+    document.body.removeChild(document.getElementById('captureCanvas'));
+    document.body.removeChild(document.getElementById('captureView'));
 }
-captureCanvas.onmouseup = function() {
-	controller.endSelection({
-		x: event.offsetX,
-		y: event.offsetY,
-        captureX: event.clientX,
-        captureY: event.clientY
-	});
-}
-captureCanvas.onmousemove = function() {
-	controller.updateSelection({
-		x: event.offsetX,
-		y: event.offsetY,
-        captureX: event.clientX,
-        captureY: event.clientY
-	});
-}
-document.onkeydown = function() {
-	var keyId = event.keyCode;
-	switch (keyId) {
-	case 13:
-		controller.captureSelection();
-		break;
-	case 27:
-		controller.exit();
-		break;
-	}
-}
-//
-//simulate FireFox sendAsBinary for Chrome
-if (XMLHttpRequest.prototype.sendAsBinary === undefined) {
-	XMLHttpRequest.prototype.sendAsBinary = function(string) {
-		var bytes = Array.prototype.map.call(string, function(c) {
-			return c.charCodeAt(0) & 0xff;
-		});
-		this.send(new Uint8Array(bytes).buffer);
-	}
-}
+
+    insertVisualElements(); 
+    //initialize the controller
+    var controller = new CaptureCanvasController();
+    var captureView = new CaptureView();
+    //var captureCanvas = document.getElementById('captureCanvas');
+    //bind event handler 
+    captureCanvas.onmousedown = function() {
+        console.log(event.clientX + " - " + event.clientY);
+        controller.startSelection({
+            x: event.offsetX,
+            y: event.offsetY, 
+            captureX: event.clientX,
+            captureY: event.clientY
+        });
+    }
+    captureCanvas.onmouseup = function() {
+        controller.endSelection({
+            x: event.offsetX,
+            y: event.offsetY,
+            captureX: event.clientX,
+            captureY: event.clientY
+        });
+    }
+    captureCanvas.onmousemove = function() {
+        controller.updateSelection({
+            x: event.offsetX,
+            y: event.offsetY,
+            captureX: event.clientX,
+            captureY: event.clientY
+        });
+    }
+    document.onkeydown = function() {
+        var keyId = event.keyCode;
+        switch (keyId) {
+        case 13:
+            controller.captureSelection();
+            break;
+        case 27:
+            controller.exit();
+            break;
+        }
+    }
+    //
+    //simulate FireFox sendAsBinary for Chrome
+    if (XMLHttpRequest.prototype.sendAsBinary === undefined) {
+        XMLHttpRequest.prototype.sendAsBinary = function(string) {
+            var bytes = Array.prototype.map.call(string, function(c) {
+                return c.charCodeAt(0) & 0xff;
+            });
+            this.send(new Uint8Array(bytes).buffer);
+        }
+    }
+
+
 // -------------------- FACEBOOK
 // ------------------------------------------------//
 function shareFacebook() {
@@ -293,7 +313,7 @@ function prepareMIMEMessage(binData, message, accessToken) {
 }
 function getDataAndUploadToFacebook(fbAccessToken) {
     captureView.showLoadingStatus(); 
-    var caption = captionInput.value;
+    var caption = captureView.caption.value;
 	captureView.imageCanvas.toBlob(function(blob) {
 		var fileReader = new FileReader();
 		fileReader.onloadend = function(evt) {
