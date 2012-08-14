@@ -308,7 +308,7 @@ function getDataAndUploadToFacebook(fbAccessToken) {
 
 function uploadFacebookPhoto(imageData, caption, accessToken) {
 
-	var photoUrl = 'https://graph.facebook.com/651244951/photos?access_token=' + accessToken;
+	var photoUrl = 'https://graph.facebook.com/me/photos?access_token=' + accessToken;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", photoUrl, true);
 	xhr.setRequestHeader("Content-type", "multipart/form-data; boundary=-----")
