@@ -119,6 +119,26 @@ function CaptureView() {
 		//set image display canvas
 		this.imageCanvas = this.popup.querySelector("#imageDisplay");
         this.caption = this.popup.querySelector("#caption");
+        //for drawing on canvas
+        var drawContext = this.imageCanvas.getContext('2d');
+        var start = false;
+        this.imageCanvas.onmousedown = function(e) {
+            drawContext.beginPath();      
+            drawContext.moveTo(e.offsetX, e.offsetY);
+            drawContext.lineWidth = 3;
+            drawContext.strokeStyle = 'red';
+            start = true;
+        }
+        this.imageCanvas.onmouseup = function(e) {
+            drawContext.closePath();
+            start = false;
+        }
+        this.imageCanvas.onmousemove = function(e) {
+            if (start) {
+                drawContext.lineTo(e.offsetX, e.offsetY); 
+                drawContext.stroke();
+            } 
+        }
 	}
 	this.initialize();
 }
