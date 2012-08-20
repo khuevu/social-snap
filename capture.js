@@ -17,6 +17,8 @@ function insertVisualElements() {
     captureCanvas.id = 'captureCanvas';
     captureCanvas.height = getViewableHeight();
     captureCanvas.width = getViewableWidth();
+    captureCanvas.style.left = window.scrollX + 'px';
+    captureCanvas.style.top = window.scrollY + 'px';
     //popup window
     var capturePopup = document.createElement('div');
     capturePopup.className = 'popUp';
