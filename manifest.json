@@ -1,6 +1,6 @@
 {
   "name": "Social Snap",
-    "version": "1.0.2",
+    "version": "1.0.3",
   "manifest_version": 2,
     "description": "Be visually creative with websites screen and share via social networks",
   "browser_action": {
